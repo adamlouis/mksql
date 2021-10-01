@@ -7,7 +7,7 @@ var rootCmd = &cobra.Command{
 	Short: `make & serve sqlite databases`,
 	Long:  `make & serve sqlite databases`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return nil
+		return cmd.Help()
 	},
 }
 
