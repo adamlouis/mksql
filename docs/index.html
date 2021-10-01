@@ -1,5 +1,6 @@
 <html>
   <head>
+    <title>mksql - make & serve sqlite databases</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       body {
@@ -25,12 +26,35 @@
   </head>
   <body>
     <h1>mksql</h1>
-    <p>upload csv/tsv/json/xls/sqlite data....</p>
-    <pre>http --form POST https://mksql.com/u file@data.csv</pre>
-    <p>...query it with sql</p>
-    <pre>echo '{"q":"SELECT * FROM person WHERE name = 'A%'","response_type":"json/array"}' | http POST https://mksql.com/q</pre>
+    <p>an ETL tool for people who:</p>
+    <ul>
+      <li>like sqlite</li>
+      <li>have modest data needs (< ~64 TB, < ~100 qps)</li>
+    </ul>
+    <p>I previously posted a side project <a href="https://squirrelbyte.com/">squirrelbyte</a> (<a href="https://news.ycombinator.com/item?id=26766557">Hacker News</a>) ... this project has similar motivations ... let's see how it goes</p>
     <hr />
-    <p>Add your email to the <a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/forms/d/e/1FAIpQLSfdBQQoREI1Vv-q_L_IWdwrdulXx2DgG_6XrnS-4K32Qniung/viewform?usp=sf_link">google form here</a> or the window below to get email updates about the project</p>
+    <p>Add your email to the <a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/forms/d/e/1FAIpQLSfdBQQoREI1Vv-q_L_IWdwrdulXx2DgG_6XrnS-4K32Qniung/viewform?usp=sf_link">google form here</a> or the window at the bottom of the page to get email updates about the project</p>
+    <h2>the gist</h2>
+    <h3>1) put data in</h3>
+    <p>upload files like csv, tsv, json, xls, sqlite, etc</p>
+    <p>any size that fits on disk is fine: 5 KB, 5 MB, 5 GB, 5 TB, .... AWS EBS supports up to 64 TB</p>
+    <p>run a local cli or hit a remote server</p>
+    <p>use a command like:</p>
+    <pre>http --form POST https://mksql.com/u file@data.csv</pre>
+    <h3>2) get data out ... with SQL</h3>
+    <p>run arbitrary sql queries against your data</p>
+    <p>get the data back in the shape you want it: json, tsv, &lt;table&gt;, &lt;div&gt;, etc</p>
+    <p>invoke in static websites, jupyter notebooks, observable hq, etc.</p>
+    <p>use a command like:</p>
+    <pre>echo "SELECT name, favorite_color FROM person WHERE favorite_color = \'#fcd703\'" | http POST https://mksql.com/q</pre>
+    <h2>what's next?</h2>
+    <p>maybe this will have legs?</p>
+    <p>I will start with some of the basic cases above</p>
+    <p>will see how it goes</p>
+    <p>then, I'll consider augmenting either side - ingress or egress</p>
+    <p>ingress: google sheets sync, airtable sync, cron runner, async jobs, saas data imports, etc</p>
+    <p>egress: custom UI / dashboards / site builder, publish API to serverless platforms, cost efficient integrations w/ AWS lambda cloudflare workers etc, hosted service, embed in ghost, share on social, etc. etc</p>
+    <p></p>
     <hr />
     <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfdBQQoREI1Vv-q_L_IWdwrdulXx2DgG_6XrnS-4K32Qniung/viewform"></iframe>
   </body>
