@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/adamlouis/mksql/cmd"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {

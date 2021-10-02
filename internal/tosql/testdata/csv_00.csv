@@ -1,0 +1,5 @@
+name,age,favorite_color,height,is_something,not_bool
+alice,40,red,1.65,true,true
+bob,41,blue,1.84,false,other
+dan,40,blue,1.9,false,hi
+earl,39,green,1.7,true,true

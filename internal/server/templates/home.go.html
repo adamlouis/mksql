@@ -1,0 +1,108 @@
+<html>
+  {{ template "html-header" }}
+  <style>
+    input[type="submit"],
+    input[type="file"],
+    button,
+    select {
+      cursor: pointer;
+      padding: 4px;
+    }
+    .bg-aqua {
+      background-color: aqua;
+    }
+    .bg-wheat {
+      background-color: wheat;
+    }
+    .border {
+      border: solid black 2px;
+    }
+    .mg-b-md {
+      margin-bottom: 8px;
+    }
+    .mg-tb-8 {
+      margin: 8px 0px;
+    }
+    .flex-col {
+      display: flex;
+      flex-direction: column;
+    }
+    .flex {
+      display: flex;
+    }
+    .space-between {
+      justify-content: space-between;
+    }
+    .end {
+      justify-content: flex-end;
+    }
+    .mx-w-600 {
+      max-width: 600px;
+    }
+    .ht-150 {
+      height: 150px;
+    }
+    .pd-4 {
+      padding: 4px;
+    }
+    .pd-8 {
+      padding: 8px;
+    }
+    .w-100 {
+      width: 100%;
+    }
+  </style>
+  <body class="bg-aqua">
+    <h1><a href="/">mksql</a></h1>
+    <div class="flex-col">
+      <div class="border mg-tb-8 bg-wheat mx-w-600 pd-8">
+        <h2>databases</h2>
+        <ul>
+          {{ range $n := .DBs }}
+          <li><a href="/dbs/{{$n.Name}}">{{ $n.Name }}</a> ({{ $n.Size }})</li>
+          {{ end }}
+        </ul>
+        <h2>upload</h2>
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+          <div class="flex space-between mg-tb-8">
+            <label for="input-files">files</label>
+            <input id="input-files" name="files" type="file" multiple />
+          </div>
+          <div class="flex end mg-tb-8">
+            <input type="submit" value="upload" />
+          </div>
+        </form>
+      </div>
+      <div class="border mg-tb-8 bg-wheat mx-w-600 pd-8">
+        <h2>query API</h2>
+        <form method="GET" action="/q">
+          <div class="mg-tb-8">
+            <div class="mg-b-md"><label for="input-q">query</label></div>
+            <textarea id="input-q" class="w-100 ht-150" name="q">{{ .DefaultQ }}</textarea>
+          </div>
+          <div class="flex space-between mg-tb-8">
+            <label for="input-db">database</label>
+            <select id="input-db" name="db">
+              {{ range $n := .DBs }}
+              <option>{{ $n.Name }}</option>
+              {{ end }}
+            </select>
+          </div>
+          <div class="flex space-between mg-tb-8">
+            <label for="input-fmt">response format</label>
+            <select id="input-fmt" name="fmt">
+              <option value="col">col</option>
+              <option value="json/obj">json/obj</option>
+              <option value="json/arr">json/arr</option>
+              <option value="html">html</option>
+              <option value="csv">csv</option>
+            </select>
+          </div>
+          <div class="flex end mg-tb-8">
+            <input type="submit" value="query" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
