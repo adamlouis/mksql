@@ -6,7 +6,6 @@
     button,
     select {
       cursor: pointer;
-      padding: 4px;
     }
 
     .bg-wheat {
@@ -58,6 +57,9 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
     }
+    .ft-sz-14 {
+      font-size: 14px;
+    }
     .db-row {
       display: flex;
       justify-content: space-between;
@@ -76,6 +78,9 @@
     .db-sz {
       color: rgb(87, 96, 106);
     }
+    .mg-0 {
+      margin: 0px;
+    }
     .w-100 {
       width: 100%;
     }
@@ -89,10 +94,11 @@
     .new-button {
       background-color: rgb(45, 164, 78);
       color: rgb(255, 255, 255);
-      padding: 8px 16px;
       border-radius: 3px;
       text-decoration: none;
       font-size: 14px;
+      border: none;
+      padding: 8px 16px;
       font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji" -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
     }
     .new-button:hover {
@@ -109,21 +115,33 @@
       flex-direction: column;
       align-items: center;
     }
+    .bd-sm {
+      border: solid rgb(216, 222, 228) 1px;
+    }
+    .bd-rd-3 {
+      border-radius: 3px;
+    }
   </style>
   <body class="bg-aqua">
     <h1><a href="/">mksql</a></h1>
     <div class="flex-col">
       <div class="w-mx-800">
-        <div class="mg-b-8 flex-end"><a class="new-button" href="/dbs:create">new</a></div>
         <div class="db-list">
-          <div class="db-row db-header">databases</div>
-          {{ if .DBs }} {{ range $n := .DBs }}
-          <div class="db-row"><a href="/dbs/{{$n.Name}}">{{ $n.Name }}</a> ({{ $n.Size }})</div>
-          {{ end }} {{ else }}
+          <div class="db-row db-header">create a database</div>
           <div class="db-row">
-            <span>no databases ... <a href="/dbs:create">create a new one</a>!</span>
+            <form class="w-100 mg-0" method="POST" action="/upload" enctype="multipart/form-data">
+              <input type="hidden" name="fmt" value=".csv" />
+              <div class="mg-b-8">
+                <input class="pd-8 w-100 bd-rd-3 bd-sm" placeholder="database name" name="name" type="text" />
+              </div>
+              <div class="mg-b-8">
+                <input class="ft-sz-14 pd-8 bd-rd-3 bd-sm w-100" id="input-files" name="file" type="file" />
+              </div>
+              <div class="flex-end">
+                <div class="mg-b-8 flex-end"><input class="new-button" type="submit" value="upload" /></div>
+              </div>
+            </form>
           </div>
-          {{ end }}
         </div>
       </div>
     </div>

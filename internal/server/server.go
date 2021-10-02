@@ -47,9 +47,13 @@ func (s *srv) Serve() error {
 	// web
 	r.HandleFunc("/", s.HandleGetHomePage).Methods(http.MethodGet)
 	r.HandleFunc("/dbs/{db}", s.HandleGetDBPage).Methods(http.MethodGet)
+	r.HandleFunc("/dbs:create", s.HandleCreateDBPage).Methods(http.MethodGet)
 	r.HandleFunc("/upload", s.HandlePostUploadPage).Methods(http.MethodPost)
 	// api
 	r.HandleFunc("/q", s.HandleGetQ).Methods(http.MethodGet)
+	// static
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./internal/server/static/"))))
+
 	r.Use(loggerMiddleware)
 	jsonlog.Log("name", "SERVER_START", "port", s.opts.Port)
 	return http.ListenAndServe(fmt.Sprintf(":%d", s.opts.Port), r)

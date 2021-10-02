@@ -6,18 +6,8 @@
     button,
     select {
       cursor: pointer;
-      padding: 4px;
     }
-    pre {
-      white-space: pre-wrap; /* css-3 */
-      white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-      white-space: -pre-wrap; /* Opera 4-6 */
-      white-space: -o-pre-wrap; /* Opera 7 */
-      word-wrap: break-word; /* Internet Explorer 5.5+ */
-    }
-    .bg-aqua {
-      background-color: aqua;
-    }
+
     .bg-wheat {
       background-color: wheat;
     }
@@ -55,43 +45,183 @@
     .pd-8 {
       padding: 8px;
     }
+    .db-row:hover {
+      background-color: rgb(246, 248, 250);
+    }
+
+    .db-list {
+      border: solid rgb(216, 222, 228) 1px;
+
+      border-radius: 3px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .ft-sz-14 {
+      font-size: 14px;
+    }
+    .db-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      padding: 16px;
+      color: rgb(36, 41, 47);
+      background-color: #fff;
+      color: rgb(36, 41, 47);
+
+      border-top: solid rgb(216, 222, 228) 1px;
+    }
+    .db-header {
+      background-color: rgb(246, 248, 250);
+      font-weight: bold;
+    }
+    .db-sz {
+      color: rgb(87, 96, 106);
+    }
+    .mg-0 {
+      margin: 0px;
+    }
+    .mg-8 {
+      margin: 8px;
+    }
     .w-100 {
       width: 100%;
     }
+    .mg-b-8 {
+      margin-bottom: 8px;
+    }
+    .mg-b-16 {
+      margin-bottom: 16px;
+    }
+    .flex-end {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .new-button {
+      background-color: rgb(45, 164, 78);
+      color: rgb(255, 255, 255);
+      border-radius: 3px;
+      text-decoration: none;
+      font-size: 14px;
+      border: none;
+      padding: 8px 16px;
+      font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji" -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .new-button:hover {
+      background-color: rgb(44, 151, 75);
+    }
+    .w-mx-800 {
+      max-width: 800px;
+      width: 100%;
+    }
+    .flex-col {
+      display: flex;
+      flex-direction: column;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .bd-sm {
+      border: solid rgb(216, 222, 228) 1px;
+    }
+    .bd-rd-3 {
+      border-radius: 3px;
+    }
+    #terminal {
+      width: 100%;
+      height: 200px;
+    }
+    .cl-blue {
+    }
+    .bg-e {
+      width: 100%;
+      padding: 8px 0px;
+      background-color: #eee;
+    }
   </style>
   <body class="bg-aqua">
-    <h1><a href="/">squirrelbyte</a></h1>
-    <h2><a href="/dbs/{{.DBName}}">{{ .DBName }}</a></h2>
-    <div class="border mg-tb-8 bg-wheat mx-w-600 pd-8">
-      <h2>query API</h2>
-      <form method="GET" action="/q">
-        <div class="mg-tb-8">
-          <div class="mg-b-md"><label for="input-q">query</label></div>
-          <textarea id="input-q" class="w-100 ht-150" name="q">{{ .DefaultQ }}</textarea>
-        </div>
-        <div class="flex space-between mg-tb-8">
-          <label for="input-db">database</label>
-          <span>{{.DBName}}</span>
-          <input type="hidden" name="db" value="{{.DBName}}" />
-        </div>
-        <div class="flex space-between mg-tb-8">
-          <label for="input-fmt">response format</label>
-          <select id="input-fmt" name="fmt">
-            <option value="col">col</option>
-            <option value="json/obj">json/obj</option>
-            <option value="json/arr">json/arr</option>
-            <option value="html">html</option>
-            <option value="csv">csv</option>
-          </select>
-        </div>
-        <div class="flex end mg-tb-8">
-          <input type="submit" value="query" />
-        </div>
-      </form>
+    <h1><a href="/">mksql</a></h1>
+    <div class="w-100 bg-e mg-b-16">
+      <div class="mg-8">
+        <h2><a class="cl-blue" href="/dbs/{{.DBName }}">{{.DBName }}</a></h2>
+      </div>
     </div>
-    <div class="border mg-tb-8 bg-wheat mx-w-600 pd-8">
-      <h2>schema</h2>
-      <pre>{{ .DBSchema }}</pre>
+    <div class="flex-col">
+      <div class="w-mx-800 mg-b-md">
+        <div class="db-list">
+          <div class="db-row db-header">shell</div>
+          <div class="db-row"><div class="w-100" id="terminal"></div></div>
+          <div class="db-row"><pre id="terminal-result"></pre></div>
+        </div>
+      </div>
+      <div class="w-mx-800 mg-b-md">
+        <div class="db-list">
+          <div class="db-row db-header">API</div>
+          <div class="db-row">
+            <form method="GET" action="/q">
+              <div class="mg-tb-8">
+                <div class="mg-b-md"><label for="input-q">query</label></div>
+                <textarea id="input-q" class="w-100 ht-150" name="q">{{ .DefaultQ }}</textarea>
+              </div>
+              <div class="flex space-between mg-tb-8">
+                <label for="input-db">database</label>
+                <span>{{ .DBName }}</span>
+                <input type="hidden" name="db" value="{{.DBName}}" />
+              </div>
+              <div class="flex space-between mg-tb-8">
+                <label for="input-fmt">response format</label>
+                <select id="input-fmt" name="fmt">
+                  <option value="col">col</option>
+                  <option value="json/obj">json/obj</option>
+                  <option value="json/arr">json/arr</option>
+                  <option value="html">html</option>
+                  <option value="csv">csv</option>
+                </select>
+              </div>
+              <div class="flex end mg-tb-8">
+                <input type="submit" value="query" />
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="w-mx-800">
+        <div class="db-list">
+          <div class="db-row db-header">schema</div>
+          <div class="db-row"><pre>{{ .DBSchema }}</pre></div>
+        </div>
+      </div>
     </div>
   </body>
+  <script>
+    function run() {
+      const terminal = new Terminal();
+      const fitAddon = new FitAddon.FitAddon();
+      terminal.loadAddon(fitAddon);
+      terminal.open(document.getElementById("terminal"));
+      fitAddon.fit();
+      terminal.write("$ ");
+
+      terminal.onData((e) => {
+        switch (e) {
+          case "\r": // Enter
+          case "\u0003": // Ctrl+C
+            terminal.write("\r\n$ ");
+            break;
+          case "\u007F": // Backspace (DEL)
+            // Do not delete the prompt
+            if (terminal._core.buffer.x > 2) {
+              terminal.write("\b \b");
+            }
+            break;
+          default:
+            // Print all other characters for demo
+            console.log(e);
+            terminal.write(e);
+        }
+      });
+    }
+
+    run();
+  </script>
 </html>

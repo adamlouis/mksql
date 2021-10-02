@@ -21,55 +21,63 @@ func (s *srv) HandlePostUploadPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := r.MultipartForm.File["files"]
+	filename := r.Form.Get("name")
+	filefmt := r.Form.Get("fmt")
+
+	f, _, err := r.FormFile("file")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	// files := r.MultipartForm.File["file"]
+
+	// fmt.Println(files)
 
 	msg := []string{}
-
-	for _, fh := range files {
-		err = s.processFH(fh)
-		if err != nil {
-			msg = append(msg, err.Error())
-		} else {
-			msg = append(msg, "OK")
-		}
+	// for _, fh := range files {
+	err = s.processFH(f, filename, filefmt)
+	if err != nil {
+		msg = append(msg, err.Error())
+	} else {
+		msg = append(msg, "OK")
 	}
+	// }
 
 	fmt.Println(msg)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func (s *srv) processFH(fh *multipart.FileHeader) error {
+func (s *srv) processFH(f multipart.File, filename, filefmt string) error {
+	if filefmt != ".csv" {
+		return fmt.Errorf("unsupported format %s", filefmt)
+	}
+
 	uploadsDir := filepath.Join(s.opts.DataDir, "uploads")
 	if err := os.MkdirAll(uploadsDir, os.ModePerm); err != nil {
 		return err
 	}
 
-	// save the uploaded file to disk
 	dstDir, err := os.MkdirTemp(uploadsDir, "")
 	if err != nil {
 		return err
 	}
 
-	dstPath := filepath.Join(dstDir, fh.Filename)
+	dstPath := filepath.Join(dstDir, filename)
 	dst, err := os.Create(dstPath)
 	if err != nil {
 		return err
 	}
 	defer dst.Close()
 
-	src, err := fh.Open()
-	if err != nil {
-		return err
-	}
-	defer src.Close()
-
-	_, err = io.Copy(dst, src)
+	_, err = io.Copy(dst, f)
 	if err != nil {
 		return err
 	}
 
 	// TODO: queue
+
 	defer func() {
 		dbsDir := filepath.Join(s.opts.DataDir, "dbs")
 		if err := os.MkdirAll(dbsDir, os.ModePerm); err != nil {
@@ -77,7 +85,7 @@ func (s *srv) processFH(fh *multipart.FileHeader) error {
 			return
 		}
 
-		base := filepath.Base(fh.Filename)
+		base := filepath.Base(filename)
 		ext := filepath.Ext(base)
 		name := base[:len(base)-len(ext)] + ".db"
 		sqliteDst := filepath.Join(dbsDir, name)
@@ -86,40 +94,8 @@ func (s *srv) processFH(fh *multipart.FileHeader) error {
 		if err != nil {
 			fmt.Println(err)
 		}
+		os.RemoveAll(dstDir)
 	}()
 
 	return nil
-	// incomingdst := "./uploads/" + fh.Filename
-
-	// fincomingsrc, err := fh.Open()
-	// if err != nil {
-	// 	return err
-	// }
-	// defer fincomingsrc.Close()
-
-	// fincomingdst, err := os.OpenFile(incomingdst, os.O_WRONLY|os.O_CREATE, 0666)
-	// if err != nil {
-	// 	return err
-	// }
-	// defer fincomingdst.Close()
-
-	// io.Copy(fincomingdst, fincomingsrc)
-
-	// sqlitedst := "./dbs/" + fh.Filename
-	// csvdst := "./csvs/" + fh.Filename
-
-	// err = processSQLite(incomingdst, sqlitedst)
-	// if err == nil {
-	// 	fmt.Println("IS A SQLITE")
-	// 	return nil
-	// }
-
-	// if processCSV(incomingdst, csvdst) == nil {
-	// 	fmt.Println("IS A CSV")
-	// 	return tosql.NewCSVToSQLer(tosql.CSVToSQLOpts{Strict: true}).ToSQL(csvdst, strings.ReplaceAll(sqlitedst, ".csv", ".db"))
-	// }
-
-	// os.Remove(incomingdst)
-	// fmt.Println("IS NONE")
-	// return nil
 }
