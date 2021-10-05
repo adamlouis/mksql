@@ -2,6 +2,8 @@ const cmdMap = {
   "show tables": `SELECT name FROM sqlite_master WHERE type = 'table';`,
 };
 
+let running = false;
+
 const setupShell = (el) => {
   if (!el) {
     return;
@@ -15,11 +17,16 @@ const setupShell = (el) => {
 
   el.onkeyup = async (ke) => {
     if (ke.code === "Enter") {
-      document.querySelectorAll(".shell-result").forEach((e) => {
-        e.classList.remove("hide");
-      });
+      if (running) {
+        return;
+      }
+      running = true;
 
       try {
+        document.querySelectorAll(".shell-result").forEach((e) => {
+          e.classList.remove("hide");
+        });
+
         let cmd = el.value;
         cmd = cmdMap[cmd.toLowerCase().trim()] || cmd;
 
@@ -40,6 +47,7 @@ const setupShell = (el) => {
       } catch (e) {
         document.getElementById("terminal-result").textContent = `${e}`;
       }
+      running = false;
     }
   };
 };

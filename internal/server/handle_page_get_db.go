@@ -49,7 +49,6 @@ func (s *srv) HandleGetDBPage(w http.ResponseWriter, r *http.Request) {
 			"templates/common.go.html",
 		},
 	)
-	fmt.Println("NEW", t)
 
 	_ = t.Execute(w, PageData{
 		DBName:   dbname,
