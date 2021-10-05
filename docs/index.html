@@ -4,8 +4,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       body {
+        padding: 16px;
+        font-family: Verdana, Geneva, sans-serif;
+      }
+
+      p {
+        max-width: 750px;
+        line-height: 1.5;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
         font-family: "Courier New", monospace;
-        background-color: #fcd703;
       }
 
       iframe {
@@ -26,38 +38,67 @@
   </head>
   <body>
     <h1>mksql (<a target="_blank" rel="noopener noreferrer" href="https://github.com/adamlouis/mksql">github</a>)</h1>
+    <span>create SQL databases ... and query them with HTTP</span>
+    <hr />
 
-    <p>a tool to make & query sqlite databases</p>
-    <p>ETL intended for people who:</p>
+    <h3>what?</h3>
+    <p>mksql is a new project to quickly create, explore, and publish SQL databases.</p>
+
+    <h3>can I try it?</h3>
+    <p>See a <a href="https://demo.mksql.com">read-only demo here.</a></p>
+
+    <h3>how does it work?</h3>
+
+    <p><b>1 - </b>you upload data - .csv, .tsv, .xls, JSON, Google Sheets, Airtble, etc.</p>
+    <p><b>2 - </b>mksql makes a SQL database.</p>
+    <p><b>3 - </b>You query the data with a Web UI or HTTP API.</p>
+
+    <h3>use cases?</h3>
+
+    <p><b>web UI - </b>ad-hoc data exploration.</p>
+    <p><b>HTTP API - </b>static websites, Jupyter/Observable/R notebooks, shell scripts, etc.</p>
+
+    <h3>SQL injection?</h3>
+
+    <p>The Web UI and HTTP API run in <b>read-only mode</b></p>
+
+    <h3>Who owns my data?</h3>
+
+    <p>You do - mksql is self hosted and has an open source core (MIT License).</p>
+
+    <h3>How does it make money?</h3>
+
+    <p>There is (or, will be) a commerical license for pro / enterprise features.</p>
+
+    <p>The source code will be available under commerical license.</p>
+
+    <h3>Why not X?</h3>
+
+    <p>mksql meets some of my personal, idiosyncratic criteria.</p>
     <ul>
-      <li>like SQL as their daily driver</li>
-      <li>have modest data needs (< ~64 TB, < ~100 qps)</li>
+      <li>own my data - or, limit the of parties I share with (e.g. only AWS)</li>
+      <li>open source - extend it, see how it works, resilient if company goes under, etc.</li>
+      <li>single node - core service should run on a single VPS / desktop / laptop with minimal configuration.</li>
+      <li>modest VPS performance - should handle ~100 requests / second & ~50 TB data sources on a single node</li>
+      <li>serverless - support publishing read-only sql to aws lambda / cloudflare workers, etc.</li>
+      <li>cli support - command line experience as important as web</li>
+      <li>curl-able - HTTP API should work well with curl & command line tools (jq, awk, etc)</li>
+      <li>minimal runtime dependencies - run from a single statically-linked executable</li>
+      <li>Golang - I like Go</li>
     </ul>
-    <p>I previously posted a side project <a target="_blank" rel="noopener noreferrer" href="https://squirrelbyte.com/">squirrelbyte</a> (<a href="https://news.ycombinator.com/item?id=26766557">Hacker News</a>) ... this project has similar motivations ... let's see how it goes</p>
-    <hr />
-    <p>Add your email to the <a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/forms/d/e/1FAIpQLSfdBQQoREI1Vv-q_L_IWdwrdulXx2DgG_6XrnS-4K32Qniung/viewform?usp=sf_link">google form here</a> or the window at the bottom of the page to get email updates about the project</p>
-    <h2>the gist</h2>
-    <h3>1) put data in</h3>
-    <p>upload files like csv, tsv, json, xls, sqlite, etc</p>
-    <p>any size that fits on disk is fine: 5 KB, 5 MB, 5 GB, 5 TB, .... AWS EBS supports up to 64 TB</p>
-    <p>run a local cli or hit a remote server</p>
-    <p>use a command like:</p>
-    <pre>http --form POST https://mksql.com/u file@data.csv</pre>
-    <h3>2) get data out ... with SQL</h3>
-    <p>run arbitrary sql queries against your data</p>
-    <p>get the data back in the shape you want it: json, tsv, &lt;table&gt;, &lt;div&gt;, etc</p>
-    <p>invoke in static websites, jupyter notebooks, observable hq, etc.</p>
-    <p>use a command like:</p>
-    <pre>echo "SELECT name, favorite_color FROM person WHERE favorite_color = '#fcd703'" | http POST https://mksql.com/q</pre>
-    <h2>what's next?</h2>
-    <p>maybe this will have legs?</p>
-    <p>I will start with some of the basic cases above</p>
-    <p>will see how it goes</p>
-    <p>then, I'll consider augmenting either side - ingress or egress</p>
-    <p>ingress: google sheets sync, airtable sync, cron runner, async jobs, saas data imports, etc</p>
-    <p>egress: custom UI / dashboards / site builder, publish API to serverless platforms, cost efficient integrations w/ AWS lambda cloudflare workers etc, hosted service, embed in ghost, share on social, etc. etc</p>
-    <p></p>
-    <hr />
+
+    <h3>what's next?</h3>
+
+    <p>Let me know in the <a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/forms/d/e/1FAIpQLSfdBQQoREI1Vv-q_L_IWdwrdulXx2DgG_6XrnS-4K32Qniung/viewform?usp=sf_link">google form here</a> or in the window below.</p>
+
+    <p>I built this tool to satisfy some of my own personal use cases, so that's been my north star so far.</p>
+
+    <p>I could focus on data ingress - SaaS sync, cron, job queues, etc.</p>
+
+    <p>I could focus on data egress - API improvements, visualizations, dashboards, "website builder", etc.</p>
+
+    <p>Would appreciate any feedback about direction, requests, etc.</p>
+
     <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfdBQQoREI1Vv-q_L_IWdwrdulXx2DgG_6XrnS-4K32Qniung/viewform"></iframe>
   </body>
 </html>
