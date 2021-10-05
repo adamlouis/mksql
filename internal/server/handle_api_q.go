@@ -19,7 +19,7 @@ var fmtHTMLTemplate = template.Must(template.New("t").Parse(`<table><thead><tr>{
 
 var (
 	_limitResponseSize int = 2e6
-	_limitQueryDuraton     = time.Second * 10
+	_limitQueryDuraton     = time.Second * 15
 )
 
 func (s *srv) HandleGetQ(wrw http.ResponseWriter, r *http.Request) {
@@ -169,7 +169,7 @@ func (s *srv) HandleGetQ(wrw http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := timed.Err(); err != nil {
-		SendError(wrw, err)
+		SendError(wrw, fmt.Errorf("query exceeded maximum configured duration of %v: [%w]", _limitQueryDuraton, err))
 		return
 	}
 	metw.Flush()
@@ -219,7 +219,7 @@ func (w *meteredwriter) Write(b []byte) (int, error) {
 		return 0, w.err
 	}
 	if w.end+len(b) > len(w.buffer) {
-		w.err = fmt.Errorf("exceeded max response size of %s", toByteSize(int64(len(w.buffer))))
+		w.err = fmt.Errorf("query exceeded maximum configured response size of %s", toByteSize(int64(len(w.buffer))))
 		return 0, w.err
 	}
 	copy(w.buffer[w.end:w.end+len(b)], b)
