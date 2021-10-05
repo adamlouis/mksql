@@ -1,149 +1,51 @@
 <html>
   {{ template "html-header" }}
-  <style>
-    input[type="submit"],
-    input[type="file"],
-    button,
-    select {
-      cursor: pointer;
-    }
-
-    .bg-wheat {
-      background-color: wheat;
-    }
-    .border {
-      border: solid black 2px;
-    }
-    .mg-b-md {
-      margin-bottom: 8px;
-    }
-    .mg-tb-8 {
-      margin: 8px 0px;
-    }
-    .flex-col {
-      display: flex;
-      flex-direction: column;
-    }
-    .flex {
-      display: flex;
-    }
-    .space-between {
-      justify-content: space-between;
-    }
-    .end {
-      justify-content: flex-end;
-    }
-    .mx-w-600 {
-      max-width: 600px;
-    }
-    .ht-150 {
-      height: 150px;
-    }
-    .pd-4 {
-      padding: 4px;
-    }
-    .pd-8 {
-      padding: 8px;
-    }
-    .db-row:hover {
-      background-color: rgb(246, 248, 250);
-    }
-
-    .db-list {
-      border: solid rgb(216, 222, 228) 1px;
-
-      border-radius: 3px;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    }
-    .ft-sz-14 {
-      font-size: 14px;
-    }
-    .db-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 14px;
-      padding: 16px;
-      color: rgb(36, 41, 47);
-      background-color: #fff;
-      color: rgb(36, 41, 47);
-
-      border-top: solid rgb(216, 222, 228) 1px;
-    }
-    .db-header {
-      background-color: rgb(246, 248, 250);
-      font-weight: bold;
-    }
-    .db-sz {
-      color: rgb(87, 96, 106);
-    }
-    .mg-0 {
-      margin: 0px;
-    }
-    .w-100 {
-      width: 100%;
-    }
-    .mg-b-8 {
-      margin-bottom: 8px;
-    }
-    .flex-end {
-      display: flex;
-      justify-content: flex-end;
-    }
-    .new-button {
-      background-color: rgb(45, 164, 78);
-      color: rgb(255, 255, 255);
-      border-radius: 3px;
-      text-decoration: none;
-      font-size: 14px;
-      border: none;
-      padding: 8px 16px;
-      font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji" -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    }
-    .new-button:hover {
-      background-color: rgb(44, 151, 75);
-    }
-    .w-mx-800 {
-      max-width: 800px;
-      width: 100%;
-    }
-    .flex-col {
-      display: flex;
-      flex-direction: column;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .bd-sm {
-      border: solid rgb(216, 222, 228) 1px;
-    }
-    .bd-rd-3 {
-      border-radius: 3px;
-    }
-  </style>
   <body class="bg-aqua">
-    <h1><a href="/">mksql</a></h1>
-    <div class="flex-col">
-      <div class="w-mx-800">
-        <div class="db-list">
-          <div class="db-row db-header">create a database</div>
-          <div class="db-row">
-            <form class="w-100 mg-0" method="POST" action="/upload" enctype="multipart/form-data">
-              <input type="hidden" name="fmt" value=".csv" />
-              <div class="mg-b-8">
-                <input class="pd-8 w-100 bd-rd-3 bd-sm" placeholder="database name" name="name" type="text" />
-              </div>
-              <div class="mg-b-8">
-                <input class="ft-sz-14 pd-8 bd-rd-3 bd-sm w-100" id="input-files" name="file" type="file" />
-              </div>
-              <div class="flex-end">
-                <div class="mg-b-8 flex-end"><input class="new-button" type="submit" value="upload" /></div>
-              </div>
-            </form>
+    {{ template "header" }}
+    <div class="body">
+      <div class="flex-col">
+        <div class="w-mx-1000">
+          <div class="db-list mg-b-16">
+            <div class="db-row db-header">create a database</div>
+            <div class="db-row">
+              <form class="w-100 mg-0" method="POST" action="/dbs:create" enctype="multipart/form-data">
+                <input type="hidden" name="fmt" value=".csv" />
+                <div class="mg-b-8">
+                  <input class="pd-8 w-100 bd-rd-3 bd-sm" placeholder="database name" name="name" type="text" />
+                </div>
+                <hr class="mg-b-8" />
+                <div class="mg-b-8">
+                  <input class="pd-8 w-100 bd-rd-3 bd-sm" placeholder="URL" name="url" type="text" />
+                </div>
+                <div>OR</div>
+                <div class="mg-b-8">
+                  <input class="ft-sz-14 pd-8 bd-rd-3 bd-sm w-100" id="input-files" name="file" type="file" />
+                </div>
+                <div class="flex-end">
+                  <div class="mg-b-8 flex-end"><input class="new-button" type="submit" value="create" /></div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="db-list">
+            <div class="db-row db-header">what's next</div>
+            <div class="db-row">
+              <ul>
+                <li><strike>import .csv</strike></li>
+                <li>import .tsv</li>
+                <li>import .xls</li>
+                <li>import .zip of JSON</li>
+                <li>import Google Sheet</li>
+                <li>import Airtable</li>
+                <li>sync with AWS</li>
+                <li>sync with GitHub</li>
+                <li>...</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    {{ template "footer" }}
   </body>
 </html>

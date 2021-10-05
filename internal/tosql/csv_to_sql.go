@@ -87,6 +87,7 @@ func (t *csvtosql) createTable(db *sqlx.DB, def *DBDefinition) error {
 		strings.Join(cs, ",\n"),
 	) // TODO: dangerous string fmt, review
 
+	fmt.Println(createTableQ)
 	_, err := db.Exec(createTableQ)
 	if err != nil {
 		_ = db.Close()

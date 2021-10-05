@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"path/filepath"
 	"strings"
 
 	"github.com/adamlouis/mksql/internal/sqliteutils"
@@ -15,11 +14,8 @@ func (s *srv) HandleGetDBPage(w http.ResponseWriter, r *http.Request) {
 	defer Recover(w)
 
 	dbname := mux.Vars(r)["db"]
-	conn := fmt.Sprintf("file:%s?mode=ro", filepath.Join(s.opts.DataDir, "dbs", dbname))
 
-	fmt.Println(conn)
-
-	db, err := getDB(conn)
+	db, err := s.getRODB(dbname)
 	if err != nil {
 		_, _ = w.Write([]byte(err.Error()))
 		return

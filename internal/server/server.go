@@ -1,15 +1,19 @@
 package server
 
 import (
+	"database/sql"
+	_ "embed"
 	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"time"
 
 	"github.com/adamlouis/mksql/internal/jsonlog"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
+	"github.com/mattn/go-sqlite3"
 )
 
 type Server interface {
@@ -31,6 +35,11 @@ type ServerOpts struct {
 	DataDir string
 }
 
+var (
+	//go:embed static/favicon.ico
+	faviconBytes []byte
+)
+
 func (s *srv) Serve() error {
 	r := mux.NewRouter()
 
@@ -44,17 +53,32 @@ func (s *srv) Serve() error {
 		return err
 	}
 
-	// web
+	sql.Register("sqlite3_with_limits", &sqlite3.SQLiteDriver{
+		ConnectHook: func(conn *sqlite3.SQLiteConn) error {
+			conn.SetLimit(sqlite3.SQLITE_LIMIT_ATTACHED, 0)
+			conn.SetLimit(sqlite3.SQLITE_LIMIT_TRIGGER_DEPTH, 1)
+			conn.SetLimit(sqlite3.SQLITE_LIMIT_COLUMN, 100)
+			return nil
+		},
+	})
+
+	// web home
 	r.HandleFunc("/", s.HandleGetHomePage).Methods(http.MethodGet)
+	// dbs
 	r.HandleFunc("/dbs/{db}", s.HandleGetDBPage).Methods(http.MethodGet)
 	r.HandleFunc("/dbs:create", s.HandleCreateDBPage).Methods(http.MethodGet)
-	r.HandleFunc("/upload", s.HandlePostUploadPage).Methods(http.MethodPost)
-	// api
-	r.HandleFunc("/q", s.HandleGetQ).Methods(http.MethodGet)
+	r.HandleFunc("/dbs:create", s.HandlePostUploadPage).Methods(http.MethodPost)
+
+	// query
+	r.HandleFunc("/q", s.HandleGetQ).Methods(http.MethodGet) // 1) consider "/dbs/{db}:q" ? 2) consider http.MethodGet
+
 	// static
+	r.HandleFunc("/favicon.ico", s.HandleFavicon).Methods(http.MethodGet)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./internal/server/static/"))))
 
 	r.Use(loggerMiddleware)
+	r.Use(getACLMiddleware()...)
+
 	jsonlog.Log("name", "SERVER_START", "port", s.opts.Port)
 	return http.ListenAndServe(fmt.Sprintf(":%d", s.opts.Port), r)
 }
@@ -85,18 +109,35 @@ func Recover(w http.ResponseWriter) {
 		_, _ = w.Write([]byte(fmt.Sprintf("recovered from panic: %v", r)))
 	}
 }
+func SendError(w http.ResponseWriter, err error) {
+	w.WriteHeader(http.StatusInternalServerError)
+	_, _ = w.Write([]byte("error: " + err.Error()))
+}
 
-// TODO: conn pooling
-func getDB(conn string) (*sqlx.DB, error) {
+func (s *srv) HandleFavicon(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "image/x-icon")
+	_, _ = w.Write(faviconBytes)
+}
+
+var dbnameRegex = regexp.MustCompile("^[a-zA-Z]+.db$")
+
+// TODO: better connection pooling ... this is for read-only demo
+func (s *srv) getRODB(dbname string) (*sqlx.DB, error) {
+	if !dbnameRegex.Match([]byte(dbname)) {
+		return nil, fmt.Errorf("invalid db name")
+	}
+
+	dataDir := filepath.Join(s.opts.DataDir, "dbs")
+	conn := fmt.Sprintf("file:%s?mode=ro", filepath.Join(dataDir, dbname))
+
 	if cached, ok := dbs[conn]; ok {
-		fmt.Println("cached db")
 		return cached, nil
 	}
 
-	dbx, err := sqlx.Open("sqlite3", conn)
-	// if err == nil {
-	// 	dbs[conn] = dbx
-	// }
+	dbx, err := sqlx.Open("sqlite3_with_limits", conn)
+	if err == nil {
+		dbs[conn] = dbx
+	}
 
 	return dbx, err
 }
