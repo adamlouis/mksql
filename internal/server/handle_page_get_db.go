@@ -1,34 +1,52 @@
 package server
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/adamlouis/mksql/internal/sqliteutils"
 	"github.com/gorilla/mux"
+)
+
+var (
+	dbPageCache = map[string][]byte{} // todo: handle non-ro mode
+	dbPageLock  sync.RWMutex
 )
 
 func (s *srv) HandleGetDBPage(w http.ResponseWriter, r *http.Request) {
 	defer Recover(w)
 
 	dbname := mux.Vars(r)["db"]
+	cachekey := dbname
 
-	db, err := s.getRODB(dbname)
+	dbPageLock.RLock()
+	if b, ok := dbPageCache[cachekey]; ok {
+		defer dbPageLock.RUnlock()
+		w.Write(b)
+		return
+	}
+	dbPageLock.RUnlock()
+
+	dbx, err := s.getRODB(dbname)
 	if err != nil {
-		_, _ = w.Write([]byte(err.Error()))
+		SendError(w, err)
+		return
+	}
+	defer dbx.Close()
+
+	schema, err := sqliteutils.GetSchema(dbx)
+	if err != nil {
+		SendError(w, err)
 		return
 	}
 
-	schema, err := sqliteutils.GetSchema(db)
+	tbls, err := sqliteutils.GetTables(dbx)
 	if err != nil {
-		_, _ = w.Write([]byte(err.Error()))
-		return
-	}
-
-	tbls, err := sqliteutils.GetTables(db)
-	if err != nil {
-		_, _ = w.Write([]byte(err.Error()))
+		SendError(w, err)
 		return
 	}
 	dq := ""
@@ -50,10 +68,25 @@ func (s *srv) HandleGetDBPage(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 
-	_ = t.Execute(w, PageData{
+	buf := new(bytes.Buffer)
+	err = t.Execute(buf, PageData{
 		DBName:   dbname,
 		DBSchema: dbschema,
 		DefaultQ: dq,
 	})
+	if err != nil {
+		SendError(w, err)
+		return
+	}
 
+	executed, err := ioutil.ReadAll(buf)
+	if err != nil {
+		SendError(w, err)
+		return
+	}
+
+	dbPageLock.Lock()
+	dbPageCache[cachekey] = executed
+	dbPageLock.Unlock()
+	w.Write(executed)
 }

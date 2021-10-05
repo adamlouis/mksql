@@ -42,6 +42,7 @@ func (s *srv) HandleGetQ(wrw http.ResponseWriter, r *http.Request) {
 		SendError(wrw, err)
 		return
 	}
+	defer dbx.Close()
 
 	timed, cancel := context.WithTimeout(r.Context(), _limitQueryDuraton)
 	defer cancel()

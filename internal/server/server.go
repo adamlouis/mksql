@@ -141,11 +141,7 @@ func (s *srv) getRODB(dbname string) (*sqlx.DB, error) {
 	}
 
 	dataDir := filepath.Join(s.opts.DataDir, "dbs")
-	conn := fmt.Sprintf("file:%s?mode=ro&_query_only=true&cache=shared&_cache_size=-2000000", filepath.Join(dataDir, dbname))
-
-	if cached, ok := dbs[conn]; ok {
-		return cached, nil
-	}
+	conn := fmt.Sprintf("file:%s?mode=ro&_query_only=true&_cache_size=-200000", filepath.Join(dataDir, dbname))
 
 	dbx, err := sqlx.Open("sqlite3_with_limits", conn)
 	if err == nil {
