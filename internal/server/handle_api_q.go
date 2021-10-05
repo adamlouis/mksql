@@ -19,7 +19,7 @@ var fmtHTMLTemplate = template.Must(template.New("t").Parse(`<table><thead><tr>{
 
 var (
 	_limitResponseSize int = 2e6
-	_limitQueryDuraton     = time.Second * 15
+	_limitQueryDuraton     = time.Second * 10
 )
 
 func (s *srv) HandleGetQ(wrw http.ResponseWriter, r *http.Request) {
