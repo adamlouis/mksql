@@ -23,6 +23,9 @@ const setupShell = (el) => {
       running = true;
 
       try {
+        document.getElementById("terminal-result").textContent = "running...";
+        document.getElementById("terminal-status").textContent = "";
+
         document.querySelectorAll(".shell-result").forEach((e) => {
           e.classList.remove("hide");
         });

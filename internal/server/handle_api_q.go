@@ -17,8 +17,13 @@ import (
 
 var fmtHTMLTemplate = template.Must(template.New("t").Parse(`<table><thead><tr>{{ range $c := .Columns }}<td>{{$c}}</td>{{ end}}</tr></thead><tbody>{{ range $r := .Rows }}<tr>{{ range $c := $r }}<td>{{$c}}</td>{{ end}}</tr>{{ end}}</tbody></table>`))
 
+var (
+	_limitResponseSize int = 2e6
+	_limitQueryDuraton     = time.Second * 15
+)
+
 func (s *srv) HandleGetQ(wrw http.ResponseWriter, r *http.Request) {
-	metw := NewMeteredResponseWriter(wrw, 2e6) // cap response size at 2 MB
+	metw := NewMeteredResponseWriter(wrw, _limitResponseSize) // cap response size at 2 MB
 	dbname := r.URL.Query().Get("db")
 	q := r.URL.Query().Get("q")
 	qfmt := r.URL.Query().Get("fmt")
@@ -38,7 +43,7 @@ func (s *srv) HandleGetQ(wrw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	timed, cancel := context.WithTimeout(r.Context(), time.Second*5)
+	timed, cancel := context.WithTimeout(r.Context(), _limitQueryDuraton)
 	defer cancel()
 	rows, err := dbx.QueryxContext(timed, q)
 
@@ -160,6 +165,11 @@ func (s *srv) HandleGetQ(wrw http.ResponseWriter, r *http.Request) {
 		csvw.Flush()
 	default:
 		SendError(wrw, fmt.Errorf("unrecognized response fmt %s", qfmt))
+		return
+	}
+
+	if err := timed.Err(); err != nil {
+		SendError(wrw, err)
 		return
 	}
 	metw.Flush()
