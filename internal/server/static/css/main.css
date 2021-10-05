@@ -25,17 +25,18 @@ body {
 }
 .body {
   box-sizing: border-box;
-  min-height: calc(100vh - 100px);
+  min-height: calc(100vh - 125px);
   padding: 16px 32px;
 }
 .footer {
   background-color: #eee;
-  height: 50px;
+  height: 75px;
   font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   padding: 0px 32px;
+  flex-wrap: wrap;
 }
 .mg-t-64 {
   margin-top: 16px;

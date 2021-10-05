@@ -21,6 +21,9 @@ import (
 //go:embed templates
 var templatesFS embed.FS
 
+//go:embed static
+var staticFS embed.FS
+
 type Server interface {
 	Serve() error
 }
@@ -79,7 +82,12 @@ func (s *srv) Serve() error {
 
 	// static
 	r.HandleFunc("/favicon.ico", s.HandleFavicon).Methods(http.MethodGet)
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./internal/server/static/"))))
+	if os.Getenv("MKSQL_MODE") == "DEVELOPMENT" {
+		r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./internal/server/static/"))))
+	} else {
+		// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
+		r.PathPrefix("/static/").Handler(http.FileServer(http.FS(staticFS)))
+	}
 
 	r.Use(loggerMiddleware)
 	r.Use(getACLMiddleware()...)
