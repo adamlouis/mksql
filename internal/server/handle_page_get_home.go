@@ -1,7 +1,6 @@
 package server
 
 import (
-	"html/template"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -26,7 +25,13 @@ func (s *srv) HandleGetHomePage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	t := template.Must(template.New("home.go.html").ParseFiles("internal/server/templates/home.go.html", "internal/server/templates/common.go.html"))
+	t := newTemplate(
+		"home.go.html",
+		[]string{
+			"templates/home.go.html",
+			"templates/common.go.html",
+		},
+	)
 
 	_ = t.Execute(w, PageData{
 		DBs: dbs,

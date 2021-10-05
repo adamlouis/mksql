@@ -2,8 +2,10 @@ package server
 
 import (
 	"database/sql"
+	"embed"
 	_ "embed"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,6 +17,9 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/mattn/go-sqlite3"
 )
+
+//go:embed templates
+var templatesFS embed.FS
 
 type Server interface {
 	Serve() error
@@ -167,4 +172,20 @@ func loggerMiddleware(next http.Handler) http.Handler {
 			"time", time.Now().Format(time.RFC3339),
 		)
 	})
+}
+
+// in development, load templates from local filesystem
+// in production, use embeded FS
+//
+// in development, this allows template files to update without re-building
+// in production, this allows for a self-contained executable
+func newTemplate(name string, patterns []string) *template.Template {
+	if os.Getenv("MKSQL_MODE") == "DEVELOPMENT" {
+		resolved := make([]string, len(patterns))
+		for i := range patterns {
+			resolved[i] = fmt.Sprintf("internal/server/%s", patterns[i])
+		}
+		return template.Must(template.New(name).ParseFiles(resolved...))
+	}
+	return template.Must(template.New(name).ParseFS(templatesFS, patterns...))
 }

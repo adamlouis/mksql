@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
 
@@ -43,7 +42,14 @@ func (s *srv) HandleGetDBPage(w http.ResponseWriter, r *http.Request) {
 	}
 	dbschema := strings.Join(ss, "\n")
 
-	t := template.Must(template.New("db.go.html").ParseFiles("internal/server/templates/db.go.html", "internal/server/templates/common.go.html"))
+	t := newTemplate(
+		"db.go.html",
+		[]string{
+			"templates/db.go.html",
+			"templates/common.go.html",
+		},
+	)
+	fmt.Println("NEW", t)
 
 	_ = t.Execute(w, PageData{
 		DBName:   dbname,
