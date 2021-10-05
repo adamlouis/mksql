@@ -35,8 +35,6 @@ const setupShell = (el) => {
         url.searchParams.append("db", window.DB_NAME);
         url.searchParams.append("fmt", "col");
 
-        console.log(url.href);
-
         const start = new Date().getTime();
         const res = await fetch(url.href);
         const txt = await res.text();
