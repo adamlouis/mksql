@@ -145,7 +145,7 @@ func (s *srv) getRODB(dbname string) (*sqlx.DB, error) {
 
 	dbx, err := sqlx.Open("sqlite3_with_limits", conn)
 	if err == nil {
-		dbs[conn] = dbx
+		// dbs[conn] = dbx
 	}
 
 	return dbx, err
