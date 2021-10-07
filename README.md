@@ -1,4 +1,4 @@
-⚠️ work in progress ⚠️
+# ⚠️ work in progress ... do not use in production ⚠️
 
 # mksql
 

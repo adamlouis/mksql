@@ -11,6 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	_flagFmt = ""
+)
+
 var toSQLCmd = &cobra.Command{
 	Use:   "tosql [SRC] [DST]",
 	Short: `convert the provided source to a sqlite database`,
@@ -31,10 +35,14 @@ var toSQLCmd = &cobra.Command{
 
 		_ = os.Remove(dst)
 
+		srcFmt := _flagFmt
+		if srcFmt == "" {
+			srcFmt = strings.ToLower(filepath.Ext(src))
+		}
+
 		// for now use file extension to determine how to parse content
 		// later, accept explicit arg or do "intelligently"
-		ext := strings.ToLower(filepath.Ext(src))
-		switch ext {
+		switch srcFmt {
 		case ".csv":
 			start := time.Now()
 			defer func() {
@@ -47,6 +55,12 @@ var toSQLCmd = &cobra.Command{
 				fmt.Println("elapsed:", time.Since(start))
 			}()
 			return tosql.NewCSVToSQLer(tosql.CSVToSQLOpts{Strict: true, Comma: '\t'}).ToSQL(dst, src)
+		case "json/cat":
+			start := time.Now()
+			defer func() {
+				fmt.Println("elapsed:", time.Since(start))
+			}()
+			return tosql.NewJSONCatToSQLer(tosql.JSONCatToSQLOpts{Strict: true}).ToSQL(dst, src)
 		}
 
 		return fmt.Errorf("unsupported src %s", src)
@@ -55,5 +69,6 @@ var toSQLCmd = &cobra.Command{
 }
 
 func init() {
+	toSQLCmd.Flags().StringVarP(&_flagFmt, "fmt", "f", "", "format of the src")
 	rootCmd.AddCommand(toSQLCmd)
 }
